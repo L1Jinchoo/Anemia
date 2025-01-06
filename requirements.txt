@@ -2,3 +2,4 @@ streamlit
 scikit-learn==1.6.0  # 改成你的版本
 numpy
 pandas
+joblib==1.3.2

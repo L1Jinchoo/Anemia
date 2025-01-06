@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 # Load model
-model = load('random_forest_model.joblib')
+model = load('random_forest_model_no_hb.joblib')
 
 # App title
 st.title("Anemia Detection System")
@@ -27,8 +27,8 @@ sex = st.sidebar.selectbox(
     "Gender",
     options=['Male', 'Female']
 )
-# Convert gender to numeric (assuming Male=1, Female=0 as per training)
-sex_encoded = 1 if sex == 'Male' else 0
+# Convert gender to numeric (Male=0, Female=1)
+sex_encoded = 1 if sex == 'Female' else 0
 
 # RGB value inputs
 red_pixel = st.sidebar.slider("Red Pixel Percentage (%Red Pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
@@ -59,18 +59,16 @@ if st.button("Predict Anemia Status"):
 
         # Display results
         st.subheader("Prediction Results")
-        if prediction[0] == "Yes":
+        if prediction[0] == 1:
             st.write("Result: Anemic")
         else:
             st.write("Result: Non-Anemic")
 
         # Display probabilities
         st.write("Prediction Probabilities:")
-        st.write(f"Non-Anemic (No): {prediction_proba[0][0]:.2f}")
-        st.write(f"Anemic (Yes): {prediction_proba[0][1]:.2f}")
+        st.write(f"Non-Anemic: {prediction_proba[0][0]:.2f}")
+        st.write(f"Anemic: {prediction_proba[0][1]:.2f}")
 
     except Exception as e:
         st.error(f"Error during prediction: {str(e)}")
-
-
 

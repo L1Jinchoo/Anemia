@@ -11,11 +11,20 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
-import sklearn
 
-# 加载模型
-with open('random_forest_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+try:
+    import sklearn
+except ImportError:
+    st.error("无法导入 sklearn 库。请检查依赖安装。")
+    st.stop()
+
+try:
+    # 加载模型
+    with open('random_forest_model.pkl', 'rb') as f:
+        model = pickle.load(f)
+except Exception as e:
+    st.error(f"模型加载错误: {str(e)}")
+    st.stop()
 
 # 应用标题
 st.title("贫血检测模型部署")

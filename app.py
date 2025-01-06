@@ -8,68 +8,69 @@ Original file is located at
 """
 
 import streamlit as st
-import pickle
+from joblib import load
 import numpy as np
 import pandas as pd
 
-# 加载模型
-with open('random_forest_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Load model
+model = load('random_forest_model.joblib')
 
-# 应用标题
-st.title("贫血检测模型部署")
-st.write("通过输入性别和 RGB 值来判断是否发生贫血")
+# App title
+st.title("Anemia Detection System")
+st.write("Enter gender and RGB values to check for anemia")
 
-# 侧边栏输入
-st.sidebar.header("输入数据")
+# Sidebar inputs
+st.sidebar.header("Input Data")
 
-# 添加性别选择
+# Gender selection with encoding
 sex = st.sidebar.selectbox(
-    "性别",
+    "Gender",
     options=['Male', 'Female']
 )
+# Convert gender to numeric (assuming Male=1, Female=0 as per training)
+sex_encoded = 1 if sex == 'Male' else 0
 
-# RGB 数值输入
-red_pixel = st.sidebar.slider("红色像素比例（%Red Pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
-green_pixel = st.sidebar.slider("绿色像素比例（%Green pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
-blue_pixel = st.sidebar.slider("蓝色像素比例（%Blue pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+# RGB value inputs
+red_pixel = st.sidebar.slider("Red Pixel Percentage (%Red Pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+green_pixel = st.sidebar.slider("Green Pixel Percentage (%Green pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+blue_pixel = st.sidebar.slider("Blue Pixel Percentage (%Blue pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
 
-# 显示用户输入
-st.write("您输入的数据如下：")
-st.write(f"性别: {sex}")
-st.write(f"红色像素比例: {red_pixel}%")
-st.write(f"绿色像素比例: {green_pixel}%")
-st.write(f"蓝色像素比例: {blue_pixel}%")
+# Display user inputs
+st.write("Your input data:")
+st.write(f"Gender: {sex}")
+st.write(f"Red Pixel Percentage: {red_pixel}%")
+st.write(f"Green Pixel Percentage: {green_pixel}%")
+st.write(f"Blue Pixel Percentage: {blue_pixel}%")
 
-# 预测按钮
-if st.button("预测是否贫血"):
+# Prediction button
+if st.button("Predict Anemia Status"):
     try:
-        # 创建输入数据框，确保特征顺序与训练时一致
+        # Create input DataFrame with encoded gender
         input_data = pd.DataFrame({
-            'Sex': [sex],
+            'Sex': [sex_encoded],
             '%Red Pixel': [red_pixel],
             '%Green pixel': [green_pixel],
             '%Blue pixel': [blue_pixel]
         })
 
-        # 使用模型预测
+        # Make prediction
         prediction = model.predict(input_data)
         prediction_proba = model.predict_proba(input_data)
 
-        # 显示预测结果
-        st.subheader("预测结果")
+        # Display results
+        st.subheader("Prediction Results")
         if prediction[0] == "Yes":
-            st.write("结果：贫血")
+            st.write("Result: Anemic")
         else:
-            st.write("结果：未贫血")
+            st.write("Result: Non-Anemic")
 
-        # 显示置信概率
-        st.write("模型置信概率：")
-        st.write(f"未贫血（No）：{prediction_proba[0][0]:.2f}")
-        st.write(f"贫血（Yes）：{prediction_proba[0][1]:.2f}")
+        # Display probabilities
+        st.write("Prediction Probabilities:")
+        st.write(f"Non-Anemic (No): {prediction_proba[0][0]:.2f}")
+        st.write(f"Anemic (Yes): {prediction_proba[0][1]:.2f}")
 
     except Exception as e:
-        st.error(f"预测过程中出现错误：{str(e)}")
+        st.error(f"Error during prediction: {str(e)}")
 
 
 

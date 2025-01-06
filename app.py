@@ -10,43 +10,62 @@ Original file is located at
 import streamlit as st
 from joblib import load
 import numpy as np
+import pandas as pd
 
 # 加载模型
 model = load('random_forest_model.joblib')  # 确保模型文件名正确
 
 # 应用标题
-st.title("贫血检测模型部署")
-st.write("通过输入 RGB 值来判断是否发生贫血")
+st.title("Anemia detection model deployment")
+st.write("Anemia was determined by entering gender and RGB values")
 
-# 输入表单
-st.sidebar.header("输入 RGB 数据")
-red_pixel = st.sidebar.slider("红色像素比例（%Red Pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
-green_pixel = st.sidebar.slider("绿色像素比例（%Green pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
-blue_pixel = st.sidebar.slider("蓝色像素比例（%Blue pixel）", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+# 侧边栏输入
+st.sidebar.header("input data")
+
+# 添加性别选择
+sex = st.sidebar.selectbox(
+    "Gender",
+    options=['Male', 'Female']
+)
+
+# RGB 数值输入
+red_pixel = st.sidebar.slider("%Red Pixel", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+green_pixel = st.sidebar.slider("%Green pixel", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
+blue_pixel = st.sidebar.slider("%Blue pixel", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
 
 # 显示用户输入
-st.write("您输入的 RGB 值如下：")
-st.write(f"红色像素比例: {red_pixel}%")
-st.write(f"绿色像素比例: {green_pixel}%")
-st.write(f"蓝色像素比例: {blue_pixel}%")
+st.write("The data you entered is as follows：")
+st.write(f"Gender: {sex}")
+st.write(f"%Red Pixel: {red_pixel}%")
+st.write(f"%Green pixel: {green_pixel}%")
+st.write(f"%Blue pixel: {blue_pixel}%")
 
 # 预测按钮
-if st.button("预测是否贫血"):
-    # 将用户输入转换为模型需要的格式
-    input_features = np.array([[red_pixel, green_pixel, blue_pixel]])
+if st.button("Predict whether or not you are anemic"):
+    try:
+        # 创建输入数据框，确保特征顺序与训练时一致
+        input_data = pd.DataFrame({
+            'Sex': [sex],
+            '%Red Pixel': [red_pixel],
+            '%Green pixel': [green_pixel],
+            '%Blue pixel': [blue_pixel]
+        })
 
-    # 使用模型预测
-    prediction = model.predict(input_features)
-    prediction_proba = model.predict_proba(input_features)
+        # 使用模型预测
+        prediction = model.predict(input_data)
+        prediction_proba = model.predict_proba(input_data)
 
-    # 显示预测结果
-    st.subheader("预测结果")
-    if prediction[0] == "Yes":
-        st.write("结果：贫血")
-    else:
-        st.write("结果：未贫血")
+        # 显示预测结果
+        st.subheader("predict")
+        if prediction[0] == "Yes":
+            st.write("Results: anemia")
+        else:
+            st.write("Results: no anemia")
 
-    # 显示置信概率
-    st.write("模型置信概率：")
-    st.write(f"未贫血（No）：{prediction_proba[0][0]:.2f}")
-    st.write(f"贫血（Yes）：{prediction_proba[0][1]:.2f}")
+        # 显示置信概率
+        st.write("Model confidence probability：")
+        st.write(f"No：{prediction_proba[0][0]:.2f}")
+        st.write(f"Yes：{prediction_proba[0][1]:.2f}")
+
+    except Exception as e:
+        st.error(f"An error occurred in the prediction process：{str(e)}")

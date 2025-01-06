@@ -17,7 +17,7 @@ model = load('random_forest_model.joblib')
 
 # App title
 st.title("Anemia Detection System")
-st.write("Enter gender and RGB values to check for anemia")
+st.write("Enter gender, RGB values, and hemoglobin level to check for anemia")
 
 # Sidebar inputs
 st.sidebar.header("Input Data")
@@ -35,12 +35,31 @@ red_pixel = st.sidebar.slider("Red Pixel Percentage (%Red Pixel)", min_value=0.0
 green_pixel = st.sidebar.slider("Green Pixel Percentage (%Green pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
 blue_pixel = st.sidebar.slider("Blue Pixel Percentage (%Blue pixel)", min_value=0.0, max_value=100.0, value=50.0, step=0.1)
 
+# Hemoglobin input
+hb_level = st.sidebar.number_input(
+    "Hemoglobin Level (g/dL)",
+    min_value=0.0,
+    max_value=25.0,
+    value=13.0,
+    step=0.1,
+    help="Hemoglobin level measured in grams per deciliter (g/dL)"
+)
+
 # Display user inputs
 st.write("Your input data:")
 st.write(f"Gender: {sex}")
 st.write(f"Red Pixel Percentage: {red_pixel}%")
 st.write(f"Green Pixel Percentage: {green_pixel}%")
 st.write(f"Blue Pixel Percentage: {blue_pixel}%")
+st.write(f"Hemoglobin Level: {hb_level} g/dL")
+
+# Add reference ranges for hemoglobin
+st.sidebar.markdown("""
+---
+**Normal Hemoglobin Ranges:**
+- Adult Males: 13.5-17.5 g/dL
+- Adult Females: 12.0-15.5 g/dL
+""")
 
 # Prediction button
 if st.button("Predict Anemia Status"):
@@ -50,7 +69,8 @@ if st.button("Predict Anemia Status"):
             'Sex': [sex_encoded],
             '%Red Pixel': [red_pixel],
             '%Green pixel': [green_pixel],
-            '%Blue pixel': [blue_pixel]
+            '%Blue pixel': [blue_pixel],
+            'Hb': [hb_level]
         })
 
         # Make prediction
@@ -71,6 +91,4 @@ if st.button("Predict Anemia Status"):
 
     except Exception as e:
         st.error(f"Error during prediction: {str(e)}")
-
-
 

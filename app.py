@@ -11,6 +11,7 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
+import sklearn
 
 # 加载模型
 with open('random_forest_model.pkl', 'rb') as f:

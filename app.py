@@ -8,12 +8,13 @@ Original file is located at
 """
 
 import streamlit as st
-from joblib import load
+import pickle
 import numpy as np
 import pandas as pd
 
 # 加载模型
-model = load('random_forest_model.joblib')  # 确保模型文件名正确
+    with open('random_forest_model', 'rb') as f:
+        model = pickle.load(f)
 
 # 应用标题
 st.title("Anemia detection model deployment")

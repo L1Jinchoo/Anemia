@@ -1,5 +1,4 @@
---index-url https://pypi.org/simple
 streamlit
-scikit-learn==1.2.2
+scikit-learn==1.6.0  # 改成你的版本
 numpy
 pandas
